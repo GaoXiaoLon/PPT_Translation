@@ -367,51 +367,89 @@ class PPTTranslatorApp:
                         if progress_callback:
                             progress_callback(i+1, total_slides)
                             
-                        for shape in slide.shapes:
-                            if hasattr(shape, "text_frame") and shape.text_frame:
-                                if shape.text_frame.text.strip():
-                                    # 收集所有段落文本
-                                    paragraphs = []
-                                    for paragraph in shape.text_frame.paragraphs:
-                                        para_text = paragraph.text
-                                        if para_text.strip():
-                                            paragraphs.append(para_text)
-                                    
-                                    # 批量翻译所有段落文本
-                                    if paragraphs:
-                                        text_to_translate = "\n".join(paragraphs)
-                                        translated_text = self.translator.translate(
-                                            text_to_translate, 
-                                            self.source_lang, 
-                                            self.target_lang,
-                                            self.domain
-                                        )
-                                        
-                                        # 分割翻译结果并更新段落
-                                        translated_paragraphs = translated_text.split('\n')
-                                        for j, paragraph in enumerate(shape.text_frame.paragraphs):
-                                            if j < len(translated_paragraphs) and paragraph.text.strip():
-                                                # 保留原始格式
-                                                for run_idx, run in enumerate(paragraph.runs):
-                                                    if run_idx == 0 and translated_paragraphs[j].strip():
-                                                        run.text = translated_paragraphs[j]
-                                                    elif run_idx > 0:
-                                                        run.text = ""
-                            
-                            # 处理表格文本
-                            if hasattr(shape, "table"):
-                                for row in shape.table.rows:
-                                    for cell in row.cells:
-                                        if cell.text.strip():
-                                            cell.text = self.translator.translate(
-                                                cell.text, 
-                                                self.source_lang, 
-                                                self.target_lang,
-                                                self.domain
-                                            )
+                        # 处理所有形状
+                        self.process_shapes(slide.shapes)
                     
                     # 保存翻译后的PPT
                     prs.save(output_file)
+                
+                def process_shapes(self, shapes):
+                    """递归处理所有形状，包括组合形状"""
+                    for shape in shapes:
+                        # 处理文本框
+                        if hasattr(shape, "text_frame") and shape.text_frame:
+                            self.translate_text_frame(shape.text_frame)
+                        
+                        # 处理表格
+                        if hasattr(shape, "table") and shape.table:
+                            self.translate_table(shape.table)
+                        
+                        # 处理组合形状 - 重要的增强部分
+                        if hasattr(shape, "group_items") and shape.group_items:
+                            self.process_shapes(shape.group_items)
+                
+                def translate_text_frame(self, text_frame):
+                    """翻译文本框内容"""
+                    if not text_frame.text.strip():
+                        return
+                    
+                    # 收集所有段落文本
+                    paragraphs = []
+                    for paragraph in text_frame.paragraphs:
+                        para_text = paragraph.text
+                        if para_text.strip():
+                            paragraphs.append(para_text)
+                    
+                    # 批量翻译所有段落文本
+                    if paragraphs:
+                        text_to_translate = "\n".join(paragraphs)
+                        translated_text = self.translator.translate(
+                            text_to_translate, 
+                            self.source_lang, 
+                            self.target_lang,
+                            self.domain
+                        )
+                        
+                        # 分割翻译结果并更新段落
+                        translated_paragraphs = translated_text.split('\n')
+                        
+                        # 确保有足够的翻译结果对应每个段落
+                        if len(translated_paragraphs) < len(paragraphs):
+                            # 如果翻译结果段落数少于原文，可能是多段合并了，再次分割
+                            translated_paragraphs = []
+                            for orig_para in paragraphs:
+                                # 单独翻译每个段落，确保一一对应
+                                para_translated = self.translator.translate(
+                                    orig_para,
+                                    self.source_lang,
+                                    self.target_lang,
+                                    self.domain
+                                )
+                                translated_paragraphs.append(para_translated)
+                        
+                        # 更新文本框中的段落
+                        for j, paragraph in enumerate(text_frame.paragraphs):
+                            if j < len(translated_paragraphs) and paragraph.text.strip():
+                                # 保留原始格式处理
+                                if len(paragraph.runs) == 0:
+                                    # 没有runs，直接添加新的run
+                                    run = paragraph.add_run()
+                                    run.text = translated_paragraphs[j]
+                                else:
+                                    # 更新现有runs，保留格式
+                                    for run_idx, run in enumerate(paragraph.runs):
+                                        if run_idx == 0:
+                                            run.text = translated_paragraphs[j]
+                                        else:
+                                            run.text = ""
+                
+                def translate_table(self, table):
+                    """翻译表格内容"""
+                    for row in table.rows:
+                        for cell in row.cells:
+                            if cell.text.strip():
+                                # 递归处理表格单元格中的文本框
+                                self.translate_text_frame(cell.text_frame)
             
             # 初始化PPT翻译器
             ppt_translator = CustomPPTTranslator(
