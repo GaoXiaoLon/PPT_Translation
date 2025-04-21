@@ -24,6 +24,18 @@
 python translator.py --input your_ppt_file.pptx --output translated_file.pptx --source en --target zh
 ```
 
+或者
+
+```
+python gui.py
+```
+
+或者双击
+
+```
+start_translator.bat
+```
+
 ### 参数说明
 
 - `--input`: 输入PPT文件路径
