@@ -24,6 +24,18 @@
 python translator.py --input your_ppt_file.pptx --output translated_file.pptx --source en --target zh
 ```
 
+或者
+
+```
+python gui.py
+```
+
+或者双击
+
+```
+start_translator.bat
+```
+
 ### 参数说明
 
 - `--input`: 输入PPT文件路径
@@ -32,10 +44,6 @@ python translator.py --input your_ppt_file.pptx --output translated_file.pptx --
 - `--target`: 目标语言代码（默认为'zh'）
 - `--model`: 使用的模型名称（默认为'deepseek-chat'）
 - `--domain`: 专业领域（可选：'computer', 'os', 'general'等）
-
-## 许可
-
-MIT 
 
 ## 版权信息
 
@@ -54,4 +62,4 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License. 
+limitations under the License.
