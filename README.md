@@ -36,3 +36,22 @@ python translator.py --input your_ppt_file.pptx --output translated_file.pptx --
 ## 许可
 
 MIT 
+
+## 版权信息
+
+Copyright 2025 GaoXiaoLon
+
+本项目基于Apache License 2.0协议授权，完整许可信息请参见各源代码文件头部或Apache License 2.0许可证文本。
+
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. 
