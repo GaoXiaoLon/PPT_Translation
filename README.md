@@ -45,6 +45,4 @@ start_translator.bat
 - `--model`: 使用的模型名称（默认为'deepseek-chat'）
 - `--domain`: 专业领域（可选：'computer', 'os', 'general'等）
 
-## 许可
 
-MIT 
